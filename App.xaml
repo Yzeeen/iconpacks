@@ -1,0 +1,168 @@
+﻿<Application x:Class="DesktopIconChanger.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:DesktopIconChanger"
+             StartupUri="MainWindow.xaml">
+    <Application.Resources>
+        <!-- 转换器 -->
+        <BooleanToVisibilityConverter x:Key="BoolToVisConverter"/>
+
+        <!-- ============ 固定不变的强调色（深/浅通用） ============ -->
+        <SolidColorBrush x:Key="AccentPrimary"       Color="#4CAF50"/>
+        <SolidColorBrush x:Key="AccentBlue"          Color="#2196F3"/>
+        <SolidColorBrush x:Key="AccentOrange"        Color="#FF9800"/>
+        <SolidColorBrush x:Key="AccentPurple"        Color="#7C4DFF"/>
+        <SolidColorBrush x:Key="AccentSuccess"       Color="#4CAF50"/>
+        <SolidColorBrush x:Key="AccentWarn"          Color="#FF9800"/>
+        <SolidColorBrush x:Key="AccentError"         Color="#F44336"/>
+        <SolidColorBrush x:Key="FgError"             Color="#F44336"/>
+
+        <!-- ============ 控件默认样式：强制指向 DynamicResource ============ -->
+
+        <!-- ListView -->
+        <Style TargetType="{x:Type ListView}">
+            <Setter Property="Background" Value="{DynamicResource BgWindow}"/>
+            <Setter Property="Foreground" Value="{DynamicResource FgMain}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderDefault}"/>
+        </Style>
+
+        <!-- ListViewItem -->
+        <Style TargetType="{x:Type ListViewItem}">
+            <Setter Property="Foreground" Value="{DynamicResource FgMain}"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="{DynamicResource BgHover}"/>
+                </Trigger>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="{DynamicResource BgHover}"/>
+                    <Setter Property="Foreground" Value="{DynamicResource FgMain}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Button -->
+        <Style TargetType="{x:Type Button}">
+            <Setter Property="Background" Value="{DynamicResource BgPanelAlt}"/>
+            <Setter Property="Foreground" Value="{DynamicResource FgMain}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderDefault}"/>
+            <Setter Property="Padding" Value="8,3"/>
+        </Style>
+
+        <!-- TextBox（只读图标路径） -->
+        <Style TargetType="{x:Type TextBox}">
+            <Setter Property="Background" Value="{DynamicResource BgPanelAlt}"/>
+            <Setter Property="Foreground" Value="{DynamicResource FgMain}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderDefault}"/>
+            <Setter Property="SelectionBrush" Value="{DynamicResource AccentBlue}"/>
+        </Style>
+
+        <!-- ComboBox：默认模板把下拉 Popup 面板背景硬编码成 SystemColors 白色，
+             深色模式下会白底浅字看不清。这里重写模板，让折叠按钮与下拉面板都跟随主题色。 -->
+        <Style TargetType="{x:Type ComboBox}">
+            <Setter Property="Background" Value="{DynamicResource BgPanelAlt}"/>
+            <Setter Property="Foreground" Value="{DynamicResource FgMain}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderDefault}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="6,2"/>
+            <Setter Property="MinHeight" Value="26"/>
+            <Setter Property="MaxDropDownHeight" Value="320"/>
+            <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled"/>
+            <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ComboBox}">
+                        <Grid x:Name="templateRoot">
+                            <!-- 折叠状态按钮：背景 / 边框 / 下拉箭头全部用主题色 -->
+                            <ToggleButton x:Name="ToggleButton" ClickMode="Press" Focusable="False"
+                                          IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}">
+                                <ToggleButton.Template>
+                                    <ControlTemplate TargetType="{x:Type ToggleButton}">
+                                        <Border x:Name="bd" Background="{DynamicResource BgPanelAlt}"
+                                                BorderBrush="{DynamicResource BorderDefault}" BorderThickness="1" CornerRadius="2">
+                                            <Path x:Name="Arrow" HorizontalAlignment="Right" VerticalAlignment="Center"
+                                                  Margin="0,0,8,0" Data="M0,0 L4,4 L8,0 Z" Fill="{DynamicResource FgSecondary}"/>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource BgHover}"/>
+                                            </Trigger>
+                                            <Trigger Property="IsChecked" Value="True">
+                                                <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource AccentBlue}"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </ToggleButton.Template>
+                            </ToggleButton>
+                            <!-- 当前选中项文字 -->
+                            <ContentPresenter x:Name="ContentPresenter" Margin="{TemplateBinding Padding}" VerticalAlignment="Center"
+                                              IsHitTestVisible="False"
+                                              Content="{TemplateBinding SelectionBoxItem}"
+                                              ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                              ContentStringFormat="{TemplateBinding SelectionBoxItemStringFormat}"/>
+                            <!-- 下拉面板：背景用主题深色，替代默认的白色 -->
+                            <Popup x:Name="PART_Popup" AllowsTransparency="True" Focusable="False"
+                                   IsOpen="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}}"
+                                   PopupAnimation="{DynamicResource {x:Static SystemParameters.ComboBoxPopupAnimationKey}}"
+                                   Placement="Bottom">
+                                <Border x:Name="DropDownBorder" Margin="0,2,0,0"
+                                        Background="{DynamicResource BgWindow}"
+                                        BorderBrush="{DynamicResource BorderDefault}" BorderThickness="1" CornerRadius="3"
+                                        MinWidth="{Binding ActualWidth, ElementName=templateRoot}"
+                                        MaxHeight="{TemplateBinding MaxDropDownHeight}">
+                                    <ScrollViewer Focusable="False">
+                                        <ItemsPresenter/>
+                                    </ScrollViewer>
+                                </Border>
+                            </Popup>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsDropDownOpen" Value="True">
+                                <Setter TargetName="ContentPresenter" Property="Opacity" Value="0"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ComboBoxItem：普通项透明让面板背景透出，悬停 / 选中用主题高亮色 -->
+        <Style TargetType="{x:Type ComboBoxItem}">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{DynamicResource FgMain}"/>
+            <Setter Property="Padding" Value="8,4"/>
+            <Style.Triggers>
+                <Trigger Property="IsHighlighted" Value="True">
+                    <Setter Property="Background" Value="{DynamicResource BgHover}"/>
+                    <Setter Property="Foreground" Value="{DynamicResource FgMain}"/>
+                </Trigger>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="{DynamicResource BgHover}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- CheckBox -->
+        <Style TargetType="{x:Type CheckBox}">
+            <Setter Property="Foreground" Value="{DynamicResource FgMain}"/>
+        </Style>
+
+        <!-- TextBlock 默认前景 -->
+        <Style TargetType="{x:Type TextBlock}">
+            <Setter Property="Foreground" Value="{DynamicResource FgMain}"/>
+        </Style>
+
+        <!-- Separator -->
+        <Style TargetType="{x:Type Separator}">
+            <Setter Property="Background" Value="{DynamicResource BorderDefault}"/>
+        </Style>
+
+        <!-- ScrollBar（可选，改善深色模式观感） -->
+        <Style TargetType="{x:Type ScrollBar}">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{DynamicResource FgSecondary}"/>
+        </Style>
+
+        <!-- ============ 以下颜色由 ThemeManager 在运行时动态覆盖 ============ -->
+        <!-- （在 Themes/LightTheme.xaml 和 Themes/DarkTheme.xaml 里定义） -->
+    </Application.Resources>
+</Application>

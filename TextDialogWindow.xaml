@@ -1,0 +1,38 @@
+<Window x:Class="DesktopIconChanger.TextDialogWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="许可协议" Height="560" Width="620"
+        WindowStartupLocation="CenterOwner" ResizeMode="CanResize"
+        Background="{DynamicResource BgWindow}">
+    <Grid Margin="14">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- 标题 -->
+        <TextBlock x:Name="txtTitle" Grid.Row="0" FontWeight="Bold" FontSize="14"
+                   Foreground="{DynamicResource FgMain}" Margin="0,0,0,10"/>
+
+        <!-- 内容区：可滚动，长文本可上下滚动查看全文 -->
+        <Border Grid.Row="1" Background="{DynamicResource BgPanel}"
+                BorderBrush="{DynamicResource BorderDefault}" BorderThickness="1" CornerRadius="4" Padding="12">
+            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                          MaxHeight="400">
+                <TextBlock x:Name="txtContent" TextWrapping="Wrap"
+                           Foreground="{DynamicResource FgSecondary}" FontSize="12"/>
+            </ScrollViewer>
+        </Border>
+
+        <!-- 底部按钮 -->
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0">
+            <Button Content="确定" Width="90" Height="30" IsDefault="True" Click="BtnOk_Click"
+                    Background="{DynamicResource AccentBlue}" Foreground="{DynamicResource FgOnAccent}"
+                    BorderThickness="0" Cursor="Hand"/>
+        </StackPanel>
+    </Grid>
+</Window>

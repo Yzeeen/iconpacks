@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <ApplicationManifest>Properties\app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets\app.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FluentIcons.Wpf" Version="2.1.341" />
+    <PackageReference Include="Svg.Skia" Version="3.1.0" />
+    <PackageReference Include="System.Drawing.Common" Version="8.0.0" />
+  </ItemGroup>
+
+  <!-- 许可文本随程序分发；图标库本体改为可选下载，不再内嵌。 -->
+  <ItemGroup>
+    <EmbeddedResource Include="Assets\IconPacks\LICENSE-*.txt" />
+  </ItemGroup>
+
+</Project>
